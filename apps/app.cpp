@@ -1,8 +1,8 @@
 #include <lob/OrderBook.hpp>
-#include <iostream>
+#include <fmt/format.h>
 
 int main() {
     OrderBook lob;
-    std::cout << "Hello, World!" << std::endl;
+    fmt::print("This value should be 2: {}\n", 2);
     return 0;
 }
