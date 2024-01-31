@@ -1,15 +1,17 @@
- file(GLOB HEADER_LIST CONFIGURE_DEPENDS "${OrderBookMatchingEngine_SOURCE_DIR}/include/lob/*.hpp")
+set(HEADER_LIST_EXCHANGE_LIB
+        ../include/exchange/OrderBook.hpp
+#        ../include/exchange/Order.hpp
+#        ../include/exchange/Order.hpp
+        ../include/exchange/Order.hpp)
 
-add_library(
-        order_book
-        OrderBook.cpp
-        ${HEADER_LIST})
+add_library(exchange
+        exchange/OrderBook.cpp
+        ${HEADER_LIST_EXCHANGE_LIB} exchange/Order.cpp)
 
- target_include_directories(order_book PUBLIC ../include)
+target_link_libraries(exchange PRIVATE fmt::fmt)
+target_include_directories(exchange PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
- target_compile_features(order_book PUBLIC cxx_std_17)
-
- source_group(
-         TREE "${PROJECT_SOURCE_DIR}/include"
-         PREFIX "Header Files"
-         FILES ${HEADER_LIST})
+source_group(
+        TREE "${PROJECT_SOURCE_DIR}/include"
+        PREFIX "Header Files"
+        FILES ${HEADER_LIST_EXCHANGE_LIB})
