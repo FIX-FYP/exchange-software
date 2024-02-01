@@ -2,7 +2,7 @@ set(HEADER_LIST_EXCHANGE_LIB
         ../include/exchange/OrderBook.hpp
 #        ../include/exchange/Order.hpp
 #        ../include/exchange/Order.hpp
-        ../include/exchange/Order.hpp)
+        ../include/exchange/Order.hpp ../include/exchange/PriceLevel.hpp)
 
 add_library(exchange
         exchange/OrderBook.cpp

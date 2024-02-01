@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdint>
 #include <utility>
+#include <memory>
 
 namespace exchange {
     using order_id = uint64_t;
@@ -99,5 +100,7 @@ namespace exchange {
         order_quantity _quantity;
         order_timestamp _timestamp;
     };
+
+    using order_ptr = std::shared_ptr<Order>;
 }
 #endif //MATCH_ENGINE_ORDER_HPP
