@@ -14,10 +14,10 @@ namespace exchange {
     class OrderBook {
     public:
         OrderBook()=default;
-        void print() const;
         void insertOrder(order_ptr);
         void updateOrder(order_ptr currOrder, Order& newOrder);
-        void removeOrder(order_ptr);
+        void removeOrder(const Order&);
+        void print() const;
 
     public:
         std::optional<Order> extractBestBid(const Order&);
@@ -34,8 +34,8 @@ namespace exchange {
         void updateBuyOrder(order_ptr, Order&);
         void updateSellOrder(order_ptr, Order&);
 
-        void removeBuyOrder(order_ptr);
-        void removeSellOrder(order_ptr);
+        void removeBuyOrder(const Order&);
+        void removeSellOrder(const Order&);
 
     private:
         std::map<order_price, PriceLevel, std::greater<>> _bids;

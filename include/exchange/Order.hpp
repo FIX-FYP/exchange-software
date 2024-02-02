@@ -51,6 +51,7 @@ namespace exchange {
 
     public:
         void print() const;
+        void swap(Order& other);
 
     public:
         [[nodiscard]] order_id getOrderId() const {
@@ -79,6 +80,10 @@ namespace exchange {
 
         [[nodiscard]] order_price getPrice() const {
             return _price;
+        }
+
+        [[nodiscard]] order_quantity getQuantity() const {
+            return _quantity;
         }
 
         order_quantity& getQuantity() {

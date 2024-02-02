@@ -6,7 +6,7 @@ set(HEADER_LIST_EXCHANGE_LIB
 
 add_library(exchange
         exchange/OrderBook.cpp
-        ${HEADER_LIST_EXCHANGE_LIB} exchange/Order.cpp)
+        ${HEADER_LIST_EXCHANGE_LIB} exchange/Order.cpp exchange/PriceLevel.cpp)
 
 target_link_libraries(exchange PRIVATE fmt::fmt)
 target_include_directories(exchange PUBLIC ${PROJECT_SOURCE_DIR}/include)
