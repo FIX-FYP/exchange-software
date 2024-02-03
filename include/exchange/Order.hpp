@@ -94,6 +94,42 @@ namespace exchange {
             return _timestamp;
         }
 
+        void setOrderId(order_id orderId) {
+            _orderId = orderId;
+        }
+
+        void setSenderId(const sender_id &senderId) {
+            _senderId = senderId;
+        }
+
+        void setType(OrderType type) {
+            _type = type;
+        }
+
+        void setStatus(OrderStatus status) {
+            _status = status;
+        }
+
+        void setSide(OrderSide side) {
+            _side = side;
+        }
+
+        void setSymbol(const product_symbol &symbol) {
+            _symbol = symbol;
+        }
+
+        void setPrice(order_price price) {
+            _price = price;
+        }
+
+        void setQuantity(order_quantity quantity) {
+            _quantity = quantity;
+        }
+
+        void setTimestamp(order_timestamp timestamp) {
+            _timestamp = timestamp;
+        }
+
     private:
         order_id _orderId;
         sender_id _senderId;

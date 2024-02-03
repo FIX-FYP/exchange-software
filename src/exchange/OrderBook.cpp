@@ -124,4 +124,18 @@ namespace exchange {
         auto& pLevel = it->second;
         pLevel.removeOrder(order);
     }
+
+    std::optional<order_list::const_iterator> OrderBook::peekTopBid() const {
+        if (_bids.empty())
+            return std::nullopt;
+
+        return _bids.begin()->second.peekTop();
+    }
+
+    std::optional<order_list::const_iterator> OrderBook::peekTopOffer() const {
+        if (_offers.empty())
+            return std::nullopt;
+
+        return _offers.begin()->second.peekTop();
+    }
 }

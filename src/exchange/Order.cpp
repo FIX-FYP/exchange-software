@@ -59,6 +59,18 @@ namespace exchange {
             _timestamp);
     }
 
+    void Order::swap(Order &other) {
+        using std::swap;
+        swap(_orderId, other._orderId);
+        swap(_senderId, other._senderId);
+        swap(_type, other._type);
+        swap(_status, other._status);
+        swap(_side, other._side);
+        swap(_symbol, other._symbol);
+        swap(_price, other._price);
+        swap(_quantity, other._quantity);
+        swap(_timestamp, other._timestamp);
+    }
 
 
 }

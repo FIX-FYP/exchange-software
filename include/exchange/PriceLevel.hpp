@@ -17,10 +17,10 @@ namespace exchange {
 
     public:
         order_ptr extractTop();
-        [[nodiscard]] order_list::iterator peekTop() const;
         void insertOrder(order_ptr);
         void updateOrder(order_ptr& currOrder, Order& newOrder);
         void removeOrder(const Order&);
+        [[nodiscard]] order_list::const_iterator peekTop() const;
         void print() const;
 
     public:

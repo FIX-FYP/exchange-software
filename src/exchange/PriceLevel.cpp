@@ -47,6 +47,10 @@ namespace exchange {
         }
     }
 
+    order_list::const_iterator PriceLevel::peekTop() const {
+        return _orders.begin();
+    }
+
     void PriceLevel::print() const {
         fmt::print("PRICE: {} TOTAL VOLUME: {}\n", _price, _volume);
 
@@ -75,4 +79,5 @@ namespace exchange {
     order_price PriceLevel::getPrice() const noexcept {
         return _price;
     }
+
 }

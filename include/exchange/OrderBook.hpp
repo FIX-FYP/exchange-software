@@ -24,8 +24,8 @@ namespace exchange {
         std::optional<Order> extractBestOffer(const Order&);
 
     public:
-//        std::optional<Order> extractBestBid(const Order&);
-//        std::optional<Order> extractBestOffer(const Order&);
+        [[nodiscard]] std::optional<order_list::const_iterator> peekTopBid() const;
+        [[nodiscard]] std::optional<order_list::const_iterator> peekTopOffer() const;
 
     private:
         void insertBuyOrder(order_ptr);
