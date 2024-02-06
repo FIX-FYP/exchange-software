@@ -45,18 +45,27 @@ namespace exchange {
         else return "SELL";
     }
 
+    std::string Order::str() const {
+        std::string s;
+        fmt::format_to(
+                std::back_inserter(s),
+                "ORDER ID: {} | SENDER ID: {} | ORDER TYPE: {} | ORDER STATUS: {} | ORDER SIDE: {} | ORDER SYMBOL:  {} | ORDER PRICE: {} | ORDER QUANTITY: {} | ORDER TIMESTAMP: {}",
+                _orderId,
+                _senderId,
+                orderTypeToStr(_type),
+                orderStatusToStr(_status),
+                orderSideToStr(_side),
+                _symbol,
+                _price,
+                _quantity,
+                _timestamp);
+
+        return s;
+    }
+
     void Order::print() const {
-        fmt::print(
-            "ORDER ID: {} | SENDER ID: {} | ORDER TYPE: {} | ORDER STATUS: {} | ORDER SIDE: {} | ORDER SYMBOL:  {} | ORDER PRICE: {} | ORDER QUANTITY: {} | ORDER TIMESTAMP: {}",
-            _orderId,
-            _senderId,
-            orderTypeToStr(_type),
-            orderStatusToStr(_status),
-            orderSideToStr(_side),
-            _symbol,
-            _price,
-            _quantity,
-            _timestamp);
+        fmt::print("{}\n", this->str());
+
     }
 
     void Order::swap(Order &other) {
@@ -71,6 +80,7 @@ namespace exchange {
         swap(_quantity, other._quantity);
         swap(_timestamp, other._timestamp);
     }
+
 
 
 }

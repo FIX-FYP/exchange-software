@@ -50,6 +50,7 @@ namespace exchange {
                   _price(price), _quantity(quantity), _timestamp(timestamp) {}
 
     public:
+        [[nodiscard]] std::string str() const;
         void print() const;
         void swap(Order& other);
 
