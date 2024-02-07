@@ -61,47 +61,53 @@ namespace exchange {
 
     void OrderBook::updateBuyOrder(order_ptr currOrder, Order& newOrder) {
         auto price = currOrder->getPrice();
-        auto it = _bids.find(price);
-        if (it == _bids.end())
+        auto itCurrPLevel = _bids.find(price);
+        if (itCurrPLevel == _bids.end())
             throw;
 
-        auto& pLevel = it->second;
+        auto& currPLevel = itCurrPLevel->second;
         if (currOrder->getPrice() == newOrder.getPrice())
-            pLevel.updateOrder(currOrder, newOrder);
+            currPLevel.updateOrder(currOrder, newOrder);
         else {
-            pLevel.removeOrder(*currOrder);
+            currPLevel.removeOrder(*currOrder);
+            if (currPLevel.empty())
+                _bids.erase(itCurrPLevel);
+
             currOrder->swap(newOrder);
             order_price newPrice = currOrder->getPrice();
-            it = _bids.find(newPrice);
-            if (it == _bids.end()) {
+            auto itNewPLevel = _bids.find(newPrice);
+            if (itNewPLevel == _bids.end()) {
                 auto [newIt, inserted] = _bids.emplace(newPrice, PriceLevel{newPrice});
-                it = newIt;
+                itNewPLevel = newIt;
             }
 
-            it->second.insertOrder(std::move(currOrder));
+            itNewPLevel->second.insertOrder(std::move(currOrder));
         }
     }
 
     void OrderBook::updateSellOrder(order_ptr currOrder, Order& newOrder) {
         auto price = currOrder->getPrice();
-        auto it = _offers.find(price);
-        if (it == _offers.end())
+        auto itCurrPLevel = _offers.find(price);
+        if (itCurrPLevel == _offers.end())
             throw;
 
-        auto& pLevel = it->second;
+        auto& currPLevel = itCurrPLevel->second;
         if (currOrder->getPrice() == newOrder.getPrice())
-            pLevel.updateOrder(currOrder, newOrder);
+            currPLevel.updateOrder(currOrder, newOrder);
         else {
-            pLevel.removeOrder(*currOrder);
+            currPLevel.removeOrder(*currOrder);
+            if (currPLevel.empty())
+                _offers.erase(itCurrPLevel);
+
             currOrder->swap(newOrder);
             order_price newPrice = currOrder->getPrice();
-            it = _offers.find(newPrice);
-            if (it == _offers.end()) {
+            auto itNewPLevel = _offers.find(newPrice);
+            if (itNewPLevel == _offers.end()) {
                 auto [newIt, inserted] = _offers.emplace(newPrice, PriceLevel{newPrice});
-                it = newIt;
+                itNewPLevel = newIt;
             }
 
-            it->second.insertOrder(std::move(currOrder));
+            itNewPLevel->second.insertOrder(std::move(currOrder));
         }
     }
 
@@ -113,6 +119,8 @@ namespace exchange {
 
         auto& pLevel = it->second;
         pLevel.removeOrder(order);
+        if (pLevel.empty())
+            _bids.erase(it);
     }
 
     void OrderBook::removeSellOrder(const Order& order) {
@@ -123,6 +131,8 @@ namespace exchange {
 
         auto& pLevel = it->second;
         pLevel.removeOrder(order);
+        if (pLevel.empty())
+            _offers.erase(it);
     }
 
     std::optional<order_list::const_iterator> OrderBook::peekTopBid() const {

@@ -13,11 +13,7 @@ namespace exchange {
         if (_orders.empty()) {
             _orders.push_back(std::move(order));
             return;
-        } else if ((*_orders.begin())->getTimestamp() <= order->getTimestamp()) {
-            _orders.insert(std::next(_orders.begin()), std::move(order));
-            return;
         }
-
 
         for (auto it = std::prev(_orders.end()); it != _orders.begin(); it--) {
             if ((*it)->getTimestamp() <= order->getTimestamp()) {
@@ -26,9 +22,10 @@ namespace exchange {
             }
         }
 
-        if ((*_orders.begin())->getTimestamp() > order->getTimestamp())
+        if ((*_orders.begin())->getTimestamp() <= order->getTimestamp())
+            _orders.insert(std::next(_orders.begin()), std::move(order));
+        else
             _orders.insert(_orders.begin(), std::move(order));
-        else throw;
     }
 
     void PriceLevel::updateOrder(order_ptr& currOrder, Order& newOrder) {

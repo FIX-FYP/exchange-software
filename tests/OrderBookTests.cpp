@@ -306,26 +306,187 @@ TEST_CASE("Orders should be updated correctly", "[orderbook]") {
     }
 
     SECTION("Updating buy order price should update price levels") {
-        exchange::Order bo1Copy = *bo1;
+        exchange::Order bo1Copy{*bo1};
         ob.insertOrder(bo1);
 
-        auto topBid = ob.peekTopBid();
-        REQUIRE(topBid.has_value());
-        auto topBidValue = topBid.value();
-        fmt::print("top\n");
-        (**topBidValue).print();
-        fmt::print("copy\n");
-        bo1Copy.print();
+        auto topBidOptIt = ob.peekTopBid();
+        auto topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(bo1Copy));
 
-        REQUIRE_THAT(**topBidValue, EqualsExchangeOrder(bo1Copy));
-
-        auto newPriceBo1 = exchange::Order{bo1Copy};;
+        exchange::Order newPriceBo1{bo1Copy};
         newPriceBo1.setPrice(bo1Copy.getPrice() - 0.01);
-        auto expectedOrder = exchange::Order{newPriceBo1};
-
+        exchange::Order expectedOrder{newPriceBo1};
+//
         ob.updateOrder(bo1, newPriceBo1);
-        topBid = ob.peekTopBid();
-        topBidValue = topBid.value();
-        REQUIRE_THAT(**topBidValue, EqualsExchangeOrder(expectedOrder));
+        topBidOptIt = ob.peekTopBid();
+        REQUIRE(topBidOptIt.has_value());
+        topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(expectedOrder));
+
+        auto bo2 = std::make_shared<exchange::Order>(exchange::Order{*bo1});
+        bo2->setPrice(100);
+        bo2->setOrderId(bo1->getOrderId() + 1);
+        bo2->setTimestamp(5);
+        ob.insertOrder(bo2);
+
+        expectedOrder = *bo1;
+        expectedOrder.setPrice(100);
+
+        exchange::Order newPriceUpdateOrder{expectedOrder};
+        ob.updateOrder(bo1, newPriceUpdateOrder);
+        topBidOptIt = ob.peekTopBid();
+        REQUIRE(topBidOptIt.has_value());
+        topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(expectedOrder));
+
+        auto bo3 = std::make_shared<exchange::Order>(exchange::Order{*bo1});
+        bo3->setPrice(101);
+        bo3->setOrderId(bo1->getOrderId() + 2);
+        bo3->setTimestamp(1);
+        ob.insertOrder(bo3);
+
+        newPriceUpdateOrder = *bo1;
+        newPriceUpdateOrder.setPrice(101);
+        expectedOrder = *bo3;
+
+        ob.updateOrder(bo1, newPriceUpdateOrder);
+        topBidOptIt = ob.peekTopBid();
+        REQUIRE(topBidOptIt.has_value());
+        topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(expectedOrder));
+    }
+
+    SECTION("Updating sell order price should update price levels") {
+        exchange::Order so1Copy{*so1};
+        ob.insertOrder(so1);
+
+        auto topOfferOptIt = ob.peekTopOffer();
+        auto topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(so1Copy));
+
+        exchange::Order newPriceSo1{so1Copy};
+        newPriceSo1.setPrice(so1Copy.getPrice() + 0.01);
+        exchange::Order expectedOrder{newPriceSo1};
+//
+        ob.updateOrder(so1, newPriceSo1);
+        topOfferOptIt = ob.peekTopOffer();
+        REQUIRE(topOfferOptIt.has_value());
+        topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(expectedOrder));
+
+        auto so2 = std::make_shared<exchange::Order>(exchange::Order{*so1});
+        so2->setPrice(100);
+        so2->setOrderId(so1->getOrderId() + 1);
+        so2->setTimestamp(5);
+        ob.insertOrder(so2);
+
+        expectedOrder = *so1;
+        expectedOrder.setPrice(100);
+
+        exchange::Order newPriceUpdateOrder{expectedOrder};
+        ob.updateOrder(so1, newPriceUpdateOrder);
+        topOfferOptIt = ob.peekTopOffer();
+        REQUIRE(topOfferOptIt.has_value());
+        topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(expectedOrder));
+
+        auto so3 = std::make_shared<exchange::Order>(exchange::Order{*so1});
+        so3->setPrice(99);
+        so3->setOrderId(bo1->getOrderId() + 2);
+        so3->setTimestamp(1);
+        ob.insertOrder(so3);
+
+        newPriceUpdateOrder = *so1;
+        newPriceUpdateOrder.setPrice(99);
+        expectedOrder = *so3;
+
+        ob.updateOrder(so1, newPriceUpdateOrder);
+        topOfferOptIt = ob.peekTopOffer();
+        REQUIRE(topOfferOptIt.has_value());
+        topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(expectedOrder));
+    }
+}
+
+TEST_CASE("Orders should be removed correctly", "[orderbook]") {
+    exchange::OrderBook ob;
+    auto bo1 = std::make_shared<exchange::Order>(
+            1, "John",
+            exchange::OrderType::LIMIT,
+            exchange::OrderStatus::NEW,
+            exchange::OrderSide::BUY,
+            "ABC", 100.0, 50, 2);
+
+    auto so1 = std::make_shared<exchange::Order>(
+            1, "John",
+            exchange::OrderType::LIMIT,
+            exchange::OrderStatus::NEW,
+            exchange::OrderSide::SELL,
+            "ABC", 100.0, 50, 2);
+
+    SECTION("Removing order from price level size 1 should erase price level") {
+        ob.insertOrder(bo1);
+        auto topBidOptIt = ob.peekTopBid();
+        auto topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(*bo1));
+
+        ob.removeOrder(*bo1);
+        topBidOptIt = ob.peekTopBid();
+        REQUIRE(!topBidOptIt.has_value());
+
+        ob.insertOrder(so1);
+        auto topOfferOptIt = ob.peekTopOffer();
+        auto topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(*so1));
+
+        ob.removeOrder(*so1);
+        topOfferOptIt = ob.peekTopOffer();
+        REQUIRE(!topOfferOptIt.has_value());
+    }
+
+    SECTION("Removing order from price level should conserve time ordering") {
+        ob.insertOrder(bo1);
+
+        auto bo2 = std::make_shared<exchange::Order>(exchange::Order{*bo1});
+        bo2->setOrderId(bo1->getOrderId()+1);
+        bo2->setTimestamp(bo1->getTimestamp()+1);
+        ob.insertOrder(bo2);
+
+        auto bo3 = std::make_shared<exchange::Order>(exchange::Order{*bo1});
+        bo3->setOrderId(bo1->getOrderId()+2);
+        bo3->setTimestamp(bo1->getTimestamp()+2);
+        ob.insertOrder(bo3);
+
+        ob.removeOrder(*bo1);
+        auto topBidOptIt = ob.peekTopBid();
+        auto topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(*bo2));
+
+        ob.removeOrder(*bo3);
+        topBidOptIt = ob.peekTopBid();
+        topBidIt = topBidOptIt.value();
+        REQUIRE_THAT(**topBidIt, EqualsExchangeOrder(*bo2));
+
+        ob.insertOrder(so1);
+
+        auto so2 = std::make_shared<exchange::Order>(exchange::Order{*so1});
+        so2->setOrderId(so1->getOrderId()+1);
+        so2->setTimestamp(so1->getTimestamp()+1);
+        ob.insertOrder(so2);
+
+        auto so3 = std::make_shared<exchange::Order>(exchange::Order{*so1});
+        so3->setOrderId(so1->getOrderId()+2);
+        so3->setTimestamp(so1->getTimestamp()+2);
+        ob.insertOrder(so3);
+
+        ob.removeOrder(*so1);
+        auto topOfferOptIt = ob.peekTopOffer();
+        auto topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(*so2));
+
+        ob.removeOrder(*so3);
+        topOfferOptIt = ob.peekTopOffer();
+        topOfferIt = topOfferOptIt.value();
+        REQUIRE_THAT(**topOfferIt, EqualsExchangeOrder(*so2));
     }
 }
